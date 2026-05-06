@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCC5 – Registro de Preparación y Ensamble | GCG</title>
+<style>
+  :root {
+    --gcg-navy: #1C4656;
+    --gcg-teal: #007B82;
+    --gcg-gold: #C9A571;
+    --gcg-navy-light: #2a5f78;
+    --gcg-teal-light: #009da6;
+    --gcg-danger: #c0392b;
+    --gcg-danger-bg: #fdf0ee;
+    --gcg-success: #1a7a4a;
+    --gcg-success-bg: #edf7f1;
+    --gcg-warning: #b45309;
+    --gcg-warning-bg: #fef8ec;
+    --bg: #f0f4f5;
+    --surface: #ffffff;
+    --border: #d0dde0;
+    --text: #1a2e35;
+    --text-muted: #5a7580;
+    --font: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--gcg-navy);
+    color: white;
+    padding: 0;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+  .header-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px; max-width: 1400px; margin: 0 auto;
+  }
+  .header-logo { display: flex; align-items: center; gap: 12px; }
+  .logo-badge {
+    background: var(--gcg-gold); color: var(--gcg-navy);
+    font-weight: 700; font-size: 13px; padding: 5px 10px; border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+  .header-title { font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+  .header-sub { font-size: 11px; opacity: 0.7; margin-top: 1px; }
+  .header-user {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px;
+  }
+  .user-chip {
+    background: rgba(255,255,255,0.15); border-radius: 20px;
+    padding: 4px 12px 4px 8px; display: flex; align-items: center; gap: 8px;
+  }
+  .user-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--gcg-gold); color: var(--gcg-navy);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .btn-logout {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: white; padding: 5px 12px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; transition: background 0.15s;
+  }
+  .btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── LOGIN SCREEN ── */
+  .login-wrap {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--gcg-navy) 0%, var(--gcg-teal) 100%);
+    padding: 20px;
+  }
+  .login-card {
+    background: white; border-radius: 16px; padding: 40px 36px;
+    width: 100%; max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .login-logo-row {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    margin-bottom: 28px; text-align: center;
+  }
+  .login-badge {
+    background: var(--gcg-navy); color: var(--gcg-gold);
+    font-weight: 800; font-size: 22px; padding: 10px 20px; border-radius: 10px;
+    letter-spacing: 1px;
+  }
+  .login-form-title { font-size: 16px; color: var(--gcg-navy); font-weight: 600; margin-top: 4px; }
+  .login-sub { font-size: 12px; color: var(--text-muted); }
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .form-group input, .form-group select {
+    width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 14px; color: var(--text);
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .form-group input:focus, .form-group select:focus {
+    outline: none; border-color: var(--gcg-teal);
+    box-shadow: 0 0 0 3px rgba(0,123,130,0.12);
+  }
+  input[type="password"] { letter-spacing: 4px; font-size: 18px; }
+  .btn-primary {
+    width: 100%; padding: 12px; background: var(--gcg-navy); color: white;
+    border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s; margin-top: 8px;
+  }
+  .btn-primary:hover { background: var(--gcg-navy-light); }
+  .btn-primary:active { transform: scale(0.99); }
+  .login-error {
+    background: var(--gcg-danger-bg); color: var(--gcg-danger);
+    border: 1px solid #f5c6c2; border-radius: 8px;
+    padding: 10px 12px; font-size: 13px; margin-top: 12px; display: none;
+  }
+
+  /* ── MAIN APP ── */
+  .app-body { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+  /* Session info bar */
+  .session-bar {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  .session-fields { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .sfield { display: flex; align-items: center; gap: 8px; }
+  .sfield-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 600; }
+  .sfield-val { font-size: 14px; font-weight: 600; color: var(--gcg-navy); }
+  .session-bar input, .session-bar select {
+    border: 1.5px solid var(--border); border-radius: 6px; padding: 5px 9px;
+    font-size: 13px; color: var(--text); background: white;
+  }
+  .session-bar input:focus, .session-bar select:focus {
+    outline: none; border-color: var(--gcg-teal);
+  }
+  .ccp-badge {
+    background: var(--gcg-navy); color: var(--gcg-gold);
+    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Criteria box */
+  .criteria-bar {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;
+  }
+  .criteria-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 4px solid var(--gcg-teal); border-radius: 8px; padding: 10px 14px;
+  }
+  .criteria-card.danger { border-left-color: var(--gcg-danger); }
+  .criteria-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--gcg-teal); margin-bottom: 4px; }
+  .criteria-card.danger .criteria-label { color: var(--gcg-danger); }
+  .criteria-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  /* Action bar */
+  .action-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .btn-teal {
+    background: var(--gcg-teal); color: white; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-teal:hover { background: var(--gcg-teal-light); }
+  .btn-outline {
+    background: white; color: var(--gcg-navy); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+  }
+  .btn-outline:hover { border-color: var(--gcg-teal); color: var(--gcg-teal); }
+  .btn-gold {
+    background: var(--gcg-gold); color: var(--gcg-navy); border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-gold:hover { opacity: 0.9; }
+
+  /* Stats row */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; text-align: center;
+  }
+  .stat-num { font-size: 22px; font-weight: 700; color: var(--gcg-navy); }
+  .stat-num.danger { color: var(--gcg-danger); }
+  .stat-num.success { color: var(--gcg-success); }
+  .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+  /* Table */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .table-header {
+    background: var(--gcg-navy); color: white;
+    padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .table-header-title { font-size: 13px; font-weight: 600; }
+  .records-container { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 1100px; }
+  th {
+    background: #eef3f5; color: var(--text-muted);
+    padding: 9px 10px; text-align: left; font-size: 11px;
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px;
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  td { padding: 8px 10px; border-bottom: 1px solid #f0f4f5; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+  .row-nc td { background: #fff8f7 !important; }
+  .row-nc:hover td { background: #fff0ee !important; }
+
+  /* Record status badges */
+  .badge {
+    display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px;
+    border-radius: 10px; letter-spacing: 0.3px;
+  }
+  .badge-ok { background: #e8f5ee; color: var(--gcg-success); }
+  .badge-nc { background: #fdecea; color: var(--gcg-danger); }
+  .badge-pending { background: #fef9e7; color: var(--gcg-warning); }
+
+  /* Responsables chips */
+  .resp-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .resp-chip {
+    background: #eef3f5; color: var(--gcg-navy);
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+    border: 1px solid #cdd9de; white-space: nowrap;
+  }
+  .btn-add-resp {
+    background: none; border: 1px dashed var(--gcg-teal); color: var(--gcg-teal);
+    font-size: 10px; padding: 2px 7px; border-radius: 10px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-add-resp:hover { background: #eefbfc; }
+
+  /* Action icons */
+  .btn-icon {
+    background: none; border: none; cursor: pointer;
+    padding: 4px 6px; border-radius: 5px; font-size: 14px; transition: background 0.12s;
+    color: var(--text-muted);
+  }
+  .btn-icon:hover { background: #eef3f5; color: var(--gcg-navy); }
+  .btn-icon.danger:hover { background: var(--gcg-danger-bg); color: var(--gcg-danger); }
+
+  /* Temp display */
+  .temp-val { font-weight: 600; }
+  .temp-ok { color: var(--gcg-success); }
+  .temp-nc { color: var(--gcg-danger); }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center; padding: 48px 20px; color: var(--text-muted);
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-text { font-size: 14px; }
+
+  /* ── MODAL ── */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; padding: 16px; overflow-y: auto;
+  }
+  .modal-bg.hidden { display: none; }
+  .modal {
+    background: white; border-radius: 14px; width: 100%; max-width: 680px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.35); max-height: 90vh; overflow-y: auto;
+  }
+  .modal-head {
+    background: var(--gcg-navy); color: white; padding: 16px 20px;
+    border-radius: 14px 14px 0 0; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .modal-title { font-size: 15px; font-weight: 600; }
+  .modal-close {
+    background: rgba(255,255,255,0.15); border: none; color: white;
+    width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-body { padding: 20px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .modal .form-group { margin-bottom: 0; }
+  .modal .form-group input, .modal .form-group select, .modal .form-group textarea {
+    width: 100%; padding: 9px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 13px; color: var(--text); background: white;
+  }
+  .modal .form-group textarea { min-height: 70px; resize: vertical; font-family: var(--font); }
+  .modal .form-group input:focus, .modal .form-group select:focus, .modal .form-group textarea:focus {
+    outline: none; border-color: var(--gcg-teal);
+  }
+  .section-divider {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--gcg-teal); border-bottom: 2px solid var(--gcg-teal);
+    padding-bottom: 5px; margin: 18px 0 14px;
+  }
+  .temp-hint {
+    font-size: 11px; padding: 6px 10px; border-radius: 6px; margin-top: 6px;
+  }
+  .temp-hint.ok { background: var(--gcg-success-bg); color: var(--gcg-success); }
+  .temp-hint.warn { background: var(--gcg-warning-bg); color: var(--gcg-warning); }
+  .temp-hint.nc { background: var(--gcg-danger-bg); color: var(--gcg-danger); }
+
+  /* Responsables in modal */
+  .resp-modal-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; min-height: 36px; padding: 8px; background: #f8fafc; border-radius: 8px; border: 1.5px solid var(--border); }
+  .resp-modal-chip {
+    background: var(--gcg-navy); color: white; border-radius: 20px;
+    padding: 4px 10px 4px 10px; font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .resp-modal-chip button {
+    background: rgba(255,255,255,0.2); border: none; color: white; cursor: pointer;
+    width: 16px; height: 16px; border-radius: 50%; font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0; line-height: 1;
+  }
+  .resp-modal-chip button:hover { background: rgba(255,255,255,0.35); }
+  .resp-add-row { display: flex; gap: 8px; }
+  .resp-add-row select { flex: 1; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; }
+  .resp-add-row input { width: 120px; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; letter-spacing: 3px; text-align: center; }
+  .resp-add-row button { padding: 8px 14px; background: var(--gcg-teal); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .resp-add-row button:hover { background: var(--gcg-teal-light); }
+  .resp-error { color: var(--gcg-danger); font-size: 12px; margin-top: 4px; min-height: 16px; }
+
+  /* Pin modal */
+  .pin-modal { max-width: 340px; }
+  .pin-display {
+    text-align: center; font-size: 32px; letter-spacing: 12px; padding: 16px;
+    background: #f8fafc; border-radius: 8px; border: 1.5px solid var(--border);
+    margin-bottom: 12px; min-height: 62px; color: var(--gcg-navy);
+    font-family: monospace;
+  }
+  .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .pin-key {
+    padding: 14px; background: #f0f4f5; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer;
+    transition: all 0.1s; color: var(--text); display: flex; align-items: center; justify-content: center;
+  }
+  .pin-key:hover { background: #e0eaed; }
+  .pin-key:active { transform: scale(0.95); background: var(--gcg-teal); color: white; }
+  .pin-key.del { background: #fff0ee; color: var(--gcg-danger); border-color: #fcd0cc; }
+  .pin-key.del:hover { background: #fde8e6; }
+  .pin-key.confirm { background: var(--gcg-teal); color: white; border-color: var(--gcg-teal); }
+  .pin-key.confirm:hover { background: var(--gcg-teal-light); }
+  .pin-error { color: var(--gcg-danger); text-align: center; font-size: 13px; margin-top: 8px; min-height: 18px; }
+
+  /* NC Action modal */
+  .nc-options { display: flex; flex-direction: column; gap: 10px; }
+  .nc-option {
+    border: 2px solid var(--border); border-radius: 8px; padding: 12px 14px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .nc-option:hover { border-color: var(--gcg-teal); background: #eefbfc; }
+  .nc-option.selected { border-color: var(--gcg-teal); background: #eefbfc; }
+  .nc-option-title { font-size: 13px; font-weight: 600; color: var(--gcg-navy); }
+  .nc-option-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+  .modal-footer {
+    padding: 14px 20px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end;
+    position: sticky; bottom: 0; background: white; border-radius: 0 0 14px 14px;
+  }
+  .btn-cancel {
+    padding: 9px 16px; background: white; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+    color: var(--text-muted);
+  }
+  .btn-cancel:hover { border-color: var(--gcg-teal); color: var(--gcg-teal); }
+  .btn-save {
+    padding: 9px 20px; background: var(--gcg-teal); color: white;
+    border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .btn-save:hover { background: var(--gcg-teal-light); }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: var(--gcg-navy); color: white; border-radius: 10px;
+    padding: 12px 18px; font-size: 13px; font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--gcg-success); }
+  .toast.danger { background: var(--gcg-danger); }
+
+  /* Print */
+  @media print {
+    .app-header, .action-bar, .stats-row, .session-bar, .criteria-bar,
+    .btn-icon, .btn-add-resp { display: none !important; }
+    .table-wrap { border: none; }
+    body { background: white; font-size: 11px; }
+    table { font-size: 10px; }
+    td, th { padding: 4px 6px; }
+  }
+
+  @media (max-width: 768px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .criteria-bar { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .form-row.triple { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: LOGIN
+══════════════════════════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo-row">
+        <div class="login-badge">GCG</div>
+        <div>
+          <div class="login-form-title">Registro PCC5 – Preparación y Ensamble</div>
+          <div class="login-sub">Sistema de Gestión de Inocuidad Alimentaria</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Empleado</label>
+        <select id="login-employee">
+          <option value="">— Seleccionar —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>PIN</label>
+        <input type="password" id="login-pin" maxlength="4" placeholder="••••" autocomplete="off" inputmode="numeric">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Ingresar</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: MAIN APP
+══════════════════════════════════════════════════ -->
+<div id="screen-app" class="screen">
+  <div class="app-header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <div class="logo-badge">GCG</div>
+        <div>
+          <div class="header-title">Registro de Preparación y Ensamble</div>
+          <div class="header-sub">HDQ-FSM-FOR-009-SP — PCC5 V002</div>
+        </div>
+      </div>
+      <div class="header-user">
+        <span class="ccp-badge">CCP5</span>
+        <div class="user-chip">
+          <div class="user-avatar" id="header-avatar">—</div>
+          <span id="header-username">—</span>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <!-- Session bar -->
+    <div class="session-bar">
+      <div class="session-fields">
+        <div class="sfield">
+          <span class="sfield-label">Área</span>
+          <input type="text" id="session-area" placeholder="Ej: Producción Caliente" style="width:180px">
+        </div>
+        <div class="sfield">
+          <span class="sfield-label">Fecha</span>
+          <input type="date" id="session-fecha">
+        </div>
+        <div class="sfield">
+          <span class="sfield-label">Estación</span>
+          <input type="text" id="session-station" placeholder="Estación / Vuelo" style="width:160px">
+        </div>
+      </div>
+      <div>
+        <span style="font-size:11px; color:var(--text-muted);">Forma: <strong>HDQ-FSM-FOR-009-SP</strong> &nbsp;|&nbsp; Rev: <strong>V002</strong></span>
+      </div>
+    </div>
+
+    <!-- Criterios -->
+    <div class="criteria-bar">
+      <div class="criteria-card">
+        <div class="criteria-label">Criterio A – Temperatura Ambiente</div>
+        <div class="criteria-text">Si T° ambiente &lt; 15°C → exposición máx. <strong>90 min</strong>. Si T° ambiente ≥ 15°C → aplicar Criterio B.</div>
+      </div>
+      <div class="criteria-card danger">
+        <div class="criteria-label">Criterio B – Temperatura del Producto</div>
+        <div class="criteria-text">T° superficial del alimento debe mantenerse &lt; 15°C y exposición &lt; <strong>45 min</strong>. Si se supera → baño de hielo o descarte.</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">Registros totales</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num success" id="stat-ok">0</div>
+        <div class="stat-label">Conformes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num danger" id="stat-nc">0</div>
+        <div class="stat-label">No conformidades</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-resp">0</div>
+        <div class="stat-label">Firmas registradas</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-bar">
+      <button class="btn-teal" onclick="openNewRecord()">＋ Nuevo registro</button>
+      <button class="btn-outline" onclick="window.print()">⎙ Imprimir</button>
+      <button class="btn-outline" onclick="exportCSV()">⬇ Exportar CSV</button>
+      <button class="btn-gold" onclick="exportJSON()">💾 Guardar sesión</button>
+      <label class="btn-outline" style="cursor:pointer;">
+        📂 Cargar sesión
+        <input type="file" accept=".json" style="display:none" onchange="importJSON(event)">
+      </label>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-header-title">Registros de la jornada</span>
+        <span style="font-size:11px;opacity:0.7;" id="table-timestamp"></span>
+      </div>
+      <div class="records-container">
+        <table id="records-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Producto</th>
+              <th>Actividad</th>
+              <th>H. Inicio</th>
+              <th>T°Prod inicio</th>
+              <th>T°Amb inicio</th>
+              <th>H. Final</th>
+              <th>T°Prod final</th>
+              <th>T°Amb final</th>
+              <th>Cantidad</th>
+              <th>Obs / Lote</th>
+              <th>Responsables</th>
+              <th>Estado</th>
+              <th>Acción NC</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="records-tbody">
+            <tr><td colspan="17"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No hay registros aún. Presioná "Nuevo registro" para comenzar.</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODAL: NUEVO / EDITAR REGISTRO
+══════════════════════════════════════════════════ -->
+<div class="modal-bg hidden" id="modal-record">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-record-title">Nuevo Registro PCC5</span>
+      <button class="modal-close" onclick="closeModal('modal-record')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha *</label>
+          <input type="date" id="r-fecha">
+        </div>
+        <div class="form-group">
+          <label>Cliente *</label>
+          <input type="text" id="r-cliente" placeholder="Ej: Avianca, TACA, Copa">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Producto *</label>
+          <input type="text" id="r-producto" placeholder="Ej: Pechuga de pollo marinada">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Actividad *</label>
+          <select id="r-actividad">
+            <option value="">— Seleccionar —</option>
+            <option value="DEC">DEC – Decantado</option>
+            <option value="POR">POR – Porcionado</option>
+            <option value="MAR">MAR – Marinado</option>
+            <option value="EMP">EMP – Empacado</option>
+            <option value="TSU">TSU – Assembly TSU</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cantidad</label>
+          <input type="text" id="r-cantidad" placeholder="Ej: 120 porciones">
+        </div>
+      </div>
+
+      <div class="section-divider">📍 Hora de Inicio</div>
+      <div class="form-row triple">
+        <div class="form-group">
+          <label>Hora inicio *</label>
+          <input type="time" id="r-hora-inicio">
+        </div>
+        <div class="form-group">
+          <label>T° Producto inicio (°C) *</label>
+          <input type="number" id="r-tprod-inicio" step="0.1" placeholder="e.g. 4.5" oninput="checkTemps()">
+        </div>
+        <div class="form-group">
+          <label>T° Ambiente inicio (°C) *</label>
+          <input type="number" id="r-tamb-inicio" step="0.1" placeholder="e.g. 18.0" oninput="checkTemps()">
+        </div>
+      </div>
+      <div id="temp-hint-inicio" class="temp-hint" style="display:none"></div>
+
+      <div class="section-divider">📍 Hora de Finalización</div>
+      <div class="form-row triple">
+        <div class="form-group">
+          <label>Hora final</label>
+          <input type="time" id="r-hora-final">
+        </div>
+        <div class="form-group">
+          <label>T° Producto final (°C)</label>
+          <input type="number" id="r-tprod-final" step="0.1" placeholder="e.g. 5.2" oninput="checkTemps()">
+        </div>
+        <div class="form-group">
+          <label>T° Ambiente final (°C)</label>
+          <input type="number" id="r-tamb-final" step="0.1" placeholder="e.g. 19.0" oninput="checkTemps()">
+        </div>
+      </div>
+      <div id="temp-hint-final" class="temp-hint" style="display:none"></div>
+
+      <!-- NC Section (shown conditionally) -->
+      <div id="nc-section" style="display:none">
+        <div class="section-divider" style="color:var(--gcg-danger);border-color:var(--gcg-danger)">⚠ No Conformidad Detectada – Acción Inmediata</div>
+        <div class="nc-options">
+          <div class="nc-option" onclick="selectNC(this,'bano_hielo')">
+            <div class="nc-option-title">🧊 Baño de hielo</div>
+            <div class="nc-option-desc">Utilizar baño de hielo para mantener T° superficial bajo 15°C.</div>
+          </div>
+          <div class="nc-option" onclick="selectNC(this,'refrigerador')">
+            <div class="nc-option-title">❄️ Devolver al refrigerador</div>
+            <div class="nc-option-desc">T° superficial se acerca a 15°C — devolver inmediatamente.</div>
+          </div>
+          <div class="nc-option" onclick="selectNC(this,'descarte')">
+            <div class="nc-option-title">🗑 Descarte del producto</div>
+            <div class="nc-option-desc">Preparación superó 45 min o T° superficial excedió 15°C.</div>
+          </div>
+          <div class="nc-option" onclick="selectNC(this,'otro')">
+            <div class="nc-option-title">📝 Otra acción correctiva</div>
+            <div class="nc-option-desc">Especificar en observaciones.</div>
+          </div>
+        </div>
+        <input type="hidden" id="r-nc-action" value="">
+      </div>
+
+      <div class="section-divider">👷 Responsables</div>
+      <div class="resp-modal-list" id="resp-list"></div>
+      <div class="resp-add-row">
+        <select id="resp-employee-select">
+          <option value="">— Empleado —</option>
+        </select>
+        <input type="password" id="resp-pin-input" maxlength="4" placeholder="PIN" inputmode="numeric">
+        <button onclick="addResponsable()">+ Agregar firma</button>
+      </div>
+      <div class="resp-error" id="resp-error"></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">
+        Cada team member que participa debe ingresar su ID y PIN para registrar su firma digital.
+      </div>
+
+      <div class="section-divider">📝 Observaciones</div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Observaciones / Código de Lote</label>
+          <textarea id="r-obs" placeholder="Código de lote, notas de producción, etc."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-record')">Cancelar</button>
+      <button class="btn-save" onclick="saveRecord()">Guardar registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODAL: AGREGAR RESPONSABLE (adicional en tabla)
+══════════════════════════════════════════════════ -->
+<div class="modal-bg hidden" id="modal-sign">
+  <div class="modal pin-modal">
+    <div class="modal-head">
+      <span class="modal-title">Agregar firma al registro</span>
+      <button class="modal-close" onclick="closeModal('modal-sign')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Empleado</label>
+        <select id="sign-employee">
+          <option value="">— Seleccionar —</option>
+        </select>
+      </div>
+      <div class="pin-display" id="sign-pin-display">_ _ _ _</div>
+      <div class="pin-keypad" id="pin-keypad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key del" onclick="pinKey('del')">⌫</button>
+        <button class="pin-key" onclick="pinKey('0')">0</button>
+        <button class="pin-key confirm" onclick="pinKey('ok')">✓</button>
+      </div>
+      <div class="pin-error" id="sign-pin-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+const EMPLOYEES = [
+  {id:'E001', name:'Ana García',       initials:'AG', pin:'1111'},
+  {id:'E002', name:'Carlos Martínez',  initials:'CM', pin:'2222'},
+  {id:'E003', name:'Diana López',      initials:'DL', pin:'3333'},
+  {id:'E004', name:'Eduardo Flores',   initials:'EF', pin:'7890'},
+  {id:'E005', name:'Fátima Ramos',     initials:'FR', pin:'5555'},
+  {id:'E006', name:'Gustavo Herrera',  initials:'GH', pin:'6666'},
+  {id:'E007', name:'Héctor Jiménez',   initials:'HJ', pin:'7777'},
+  {id:'E008', name:'Isabel Morales',   initials:'IM', pin:'8888'},
+  {id:'E009', name:'Jorge Peña',       initials:'JP', pin:'9999'},
+  {id:'E010', name:'Karen Vásquez',    initials:'KV', pin:'0000'},
+  {id:'E011', name:'Luis Castro',      initials:'LC', pin:'1234'},
+  {id:'E012', name:'María Salazar',    initials:'MS', pin:'4321'},
+  {id:'E013', name:'Nelson Torres',    initials:'NT', pin:'1357'},
+  {id:'E014', name:'Olivia Méndez',    initials:'OM', pin:'2468'},
+  {id:'E015', name:'Pedro Aguirre',    initials:'PA', pin:'1122'},
+  {id:'SUP01',name:'Supervisor GCG',   initials:'SV', pin:'9876', supervisor:true},
+];
+
+let currentUser = null;
+let records = [];
+let editingId = null;
+let currentSignRecordId = null;
+let pinBuffer = '';
+let tempResponsables = []; // for modal form
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+(function init(){
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('session-fecha').value = today;
+  document.getElementById('r-fecha').value = today;
+  document.getElementById('table-timestamp').textContent = 'Actualizado: ' + new Date().toLocaleString('es-SV');
+
+  // Populate employee dropdowns
+  const selects = ['login-employee','resp-employee-select','sign-employee'];
+  selects.forEach(id => {
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    sel.innerHTML = '<option value="">— Seleccionar —</option>';
+    EMPLOYEES.forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = `${e.id} — ${e.name}`;
+      sel.appendChild(opt);
+    });
+  });
+
+  // Enter key on PIN login
+  document.getElementById('login-pin').addEventListener('keydown', e => {
+    if(e.key === 'Enter') doLogin();
+  });
+
+  // Load saved data if any
+  const saved = localStorage.getItem('pcc5_session');
+  if(saved) {
+    try {
+      const d = JSON.parse(saved);
+      records = d.records || [];
+    } catch(e){}
+  }
+})();
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+function doLogin(){
+  const empId = document.getElementById('login-employee').value;
+  const pin = document.getElementById('login-pin').value;
+  const errEl = document.getElementById('login-error');
+
+  if(!empId || !pin){ showLoginError('Seleccioná tu nombre e ingresá tu PIN.'); return; }
+
+  const emp = EMPLOYEES.find(e => e.id === empId);
+  if(!emp || emp.pin !== pin){ showLoginError('PIN incorrecto. Intentá nuevamente.'); return; }
+
+  currentUser = emp;
+  errEl.style.display = 'none';
+  document.getElementById('login-pin').value = '';
+
+  // Update header
+  document.getElementById('header-avatar').textContent = emp.initials;
+  document.getElementById('header-username').textContent = emp.name;
+
+  showScreen('screen-app');
+  renderTable();
+  showToast(`Bienvenido, ${emp.name} ✓`, 'success');
+}
+
+function showLoginError(msg){
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function doLogout(){
+  saveToLocalStorage();
+  currentUser = null;
+  document.getElementById('login-pin').value = '';
+  document.getElementById('login-employee').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  showScreen('screen-login');
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// RECORDS CRUD
+// ═══════════════════════════════════════
+function openNewRecord(){
+  editingId = null;
+  tempResponsables = [];
+  document.getElementById('modal-record-title').textContent = 'Nuevo Registro PCC5';
+  clearRecordForm();
+  // Pre-fill session date
+  document.getElementById('r-fecha').value = document.getElementById('session-fecha').value;
+  // Auto-add current user
+  addToTempResponsables(currentUser);
+  renderTempResponsables();
+  document.getElementById('nc-section').style.display = 'none';
+  document.getElementById('temp-hint-inicio').style.display = 'none';
+  document.getElementById('temp-hint-final').style.display = 'none';
+  openModal('modal-record');
+}
+
+function openEditRecord(id){
+  const rec = records.find(r => r.id === id);
+  if(!rec) return;
+  editingId = id;
+  tempResponsables = [...rec.responsables];
+  document.getElementById('modal-record-title').textContent = 'Editar Registro PCC5';
+  document.getElementById('r-fecha').value = rec.fecha;
+  document.getElementById('r-cliente').value = rec.cliente;
+  document.getElementById('r-producto').value = rec.producto;
+  document.getElementById('r-actividad').value = rec.actividad;
+  document.getElementById('r-cantidad').value = rec.cantidad;
+  document.getElementById('r-hora-inicio').value = rec.horaInicio;
+  document.getElementById('r-tprod-inicio').value = rec.tprodInicio;
+  document.getElementById('r-tamb-inicio').value = rec.tambInicio;
+  document.getElementById('r-hora-final').value = rec.horaFinal;
+  document.getElementById('r-tprod-final').value = rec.tprodFinal;
+  document.getElementById('r-tamb-final').value = rec.tambFinal;
+  document.getElementById('r-obs').value = rec.obs;
+  document.getElementById('r-nc-action').value = rec.ncAction || '';
+  document.querySelectorAll('.nc-option').forEach(o => {
+    o.classList.toggle('selected', o.getAttribute('onclick').includes(`'${rec.ncAction}'`));
+  });
+  renderTempResponsables();
+  checkTemps();
+  openModal('modal-record');
+}
+
+function clearRecordForm(){
+  ['r-fecha','r-cliente','r-producto','r-cantidad','r-hora-inicio','r-tprod-inicio','r-tamb-inicio',
+   'r-hora-final','r-tprod-final','r-tamb-final','r-obs'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('r-actividad').value = '';
+  document.getElementById('r-nc-action').value = '';
+  document.querySelectorAll('.nc-option').forEach(o => o.classList.remove('selected'));
+  document.getElementById('resp-error').textContent = '';
+  document.getElementById('resp-pin-input').value = '';
+  document.getElementById('resp-employee-select').value = '';
+}
+
+function saveRecord(){
+  const fecha      = document.getElementById('r-fecha').value;
+  const cliente    = document.getElementById('r-cliente').value.trim();
+  const producto   = document.getElementById('r-producto').value.trim();
+  const actividad  = document.getElementById('r-actividad').value;
+  const horaInicio = document.getElementById('r-hora-inicio').value;
+  const tprodInicio= parseFloat(document.getElementById('r-tprod-inicio').value);
+  const tambInicio = parseFloat(document.getElementById('r-tamb-inicio').value);
+
+  if(!fecha||!cliente||!producto||!actividad||!horaInicio||isNaN(tprodInicio)||isNaN(tambInicio)){
+    showToast('Completá los campos obligatorios (*)','danger'); return;
+  }
+  if(tempResponsables.length === 0){
+    showToast('Debe haber al menos un responsable firmado','danger'); return;
+  }
+
+  const horaFinal  = document.getElementById('r-hora-final').value;
+  const tprodFinal = parseFloat(document.getElementById('r-tprod-final').value);
+  const tambFinal  = parseFloat(document.getElementById('r-tamb-final').value);
+  const cantidad   = document.getElementById('r-cantidad').value.trim();
+  const obs        = document.getElementById('r-obs').value.trim();
+  const ncAction   = document.getElementById('r-nc-action').value;
+
+  // Determine status
+  const status = calcStatus(tprodInicio, tambInicio, tprodFinal, tambFinal, horaInicio, horaFinal);
+
+  const rec = {
+    id: editingId || 'R' + Date.now(),
+    fecha, cliente, producto, actividad,
+    horaInicio, tprodInicio, tambInicio,
+    horaFinal, tprodFinal, tambFinal,
+    cantidad, obs, ncAction,
+    status,
+    responsables: [...tempResponsables],
+    creadoPor: currentUser.id,
+    creadoEn: editingId ? (records.find(r=>r.id===editingId)?.creadoEn || new Date().toISOString()) : new Date().toISOString(),
+    modificadoEn: new Date().toISOString()
+  };
+
+  if(editingId){
+    const idx = records.findIndex(r => r.id === editingId);
+    records[idx] = rec;
+    showToast('Registro actualizado ✓', 'success');
+  } else {
+    records.push(rec);
+    showToast('Registro guardado ✓', 'success');
+  }
+
+  saveToLocalStorage();
+  closeModal('modal-record');
+  renderTable();
+}
+
+function deleteRecord(id){
+  if(!confirm('¿Eliminar este registro? Esta acción no se puede deshacer.')) return;
+  records = records.filter(r => r.id !== id);
+  saveToLocalStorage();
+  renderTable();
+  showToast('Registro eliminado');
+}
+
+// ═══════════════════════════════════════
+// STATUS / TEMPERATURE LOGIC
+// ═══════════════════════════════════════
+function calcStatus(tpi, tai, tpf, taf, hi, hf){
+  // NC if any temp exceeds 15°C
+  if(tpi >= 15 || (!isNaN(tpf) && tpf >= 15)) return 'nc';
+  // NC if exposure time > 45 min when ambient > 15
+  if(tai >= 15 || (!isNaN(taf) && taf >= 15)){
+    if(hi && hf){
+      const mins = timeDiffMins(hi, hf);
+      if(mins > 45) return 'nc';
+    }
+  }
+  if(hi && hf) return 'ok';
+  return 'pending';
+}
+
+function timeDiffMins(t1, t2){
+  const [h1,m1] = t1.split(':').map(Number);
+  const [h2,m2] = t2.split(':').map(Number);
+  return (h2*60+m2) - (h1*60+m1);
+}
+
+function checkTemps(){
+  const tpi = parseFloat(document.getElementById('r-tprod-inicio').value);
+  const tai = parseFloat(document.getElementById('r-tamb-inicio').value);
+  const tpf = parseFloat(document.getElementById('r-tprod-final').value);
+  const taf = parseFloat(document.getElementById('r-tamb-final').value);
+  const hi  = document.getElementById('r-hora-inicio').value;
+  const hf  = document.getElementById('r-hora-final').value;
+
+  let isNC = false;
+
+  // Inicio hint
+  const hintI = document.getElementById('temp-hint-inicio');
+  if(!isNaN(tpi) && !isNaN(tai)){
+    hintI.style.display = 'block';
+    if(tpi >= 15){
+      hintI.className = 'temp-hint nc';
+      hintI.textContent = '⚠ T° del producto en inicio supera 15°C — NO CONFORME. Aplicar acción correctiva.';
+      isNC = true;
+    } else if(tai >= 15){
+      hintI.className = 'temp-hint warn';
+      hintI.textContent = '⚡ T° ambiente ≥ 15°C — Aplicar Criterio B: monitorear T° producto. Máx. 45 min de exposición.';
+    } else {
+      hintI.className = 'temp-hint ok';
+      hintI.textContent = '✓ Condiciones iniciales dentro de los parámetros GCG (Criterio A).';
+    }
+  } else {
+    hintI.style.display = 'none';
+  }
+
+  // Final hint
+  const hintF = document.getElementById('temp-hint-final');
+  if(!isNaN(tpf) && !isNaN(taf)){
+    hintF.style.display = 'block';
+    let mins = null;
+    if(hi && hf) mins = timeDiffMins(hi, hf);
+
+    if(tpf >= 15){
+      hintF.className = 'temp-hint nc';
+      hintF.textContent = '⚠ T° del producto final supera 15°C — NO CONFORME. Descartar el producto.';
+      isNC = true;
+    } else if(mins !== null && (tai >= 15 || taf >= 15) && mins > 45){
+      hintF.className = 'temp-hint nc';
+      hintF.textContent = `⚠ Tiempo de exposición: ${mins} min — supera el límite de 45 min con T° ambiente ≥ 15°C — NO CONFORME.`;
+      isNC = true;
+    } else if(mins !== null){
+      hintF.className = 'temp-hint ok';
+      hintF.textContent = `✓ Exposición total: ${mins} min — dentro del límite permitido.`;
+    } else {
+      hintF.className = 'temp-hint ok';
+      hintF.textContent = '✓ T° final del producto dentro del parámetro.';
+    }
+  } else {
+    hintF.style.display = 'none';
+  }
+
+  document.getElementById('nc-section').style.display = isNC ? 'block' : 'none';
+  if(!isNC) document.getElementById('r-nc-action').value = '';
+}
+
+function selectNC(el, action){
+  document.querySelectorAll('.nc-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('r-nc-action').value = action;
+}
+
+// ═══════════════════════════════════════
+// RESPONSABLES IN MODAL
+// ═══════════════════════════════════════
+function addToTempResponsables(emp){
+  if(!tempResponsables.find(r => r.id === emp.id)){
+    tempResponsables.push({id: emp.id, name: emp.name, initials: emp.initials, signedAt: new Date().toISOString()});
+  }
+}
+
+function addResponsable(){
+  const empId = document.getElementById('resp-employee-select').value;
+  const pin   = document.getElementById('resp-pin-input').value;
+  const errEl = document.getElementById('resp-error');
+
+  if(!empId){ errEl.textContent = 'Seleccioná un empleado.'; return; }
+  const emp = EMPLOYEES.find(e => e.id === empId);
+  if(!emp || emp.pin !== pin){ errEl.textContent = 'PIN incorrecto.'; return; }
+
+  errEl.textContent = '';
+  document.getElementById('resp-pin-input').value = '';
+  document.getElementById('resp-employee-select').value = '';
+  addToTempResponsables(emp);
+  renderTempResponsables();
+}
+
+function removeTempResponsable(empId){
+  tempResponsables = tempResponsables.filter(r => r.id !== empId);
+  renderTempResponsables();
+}
+
+function renderTempResponsables(){
+  const list = document.getElementById('resp-list');
+  list.innerHTML = '';
+  if(tempResponsables.length === 0){
+    list.innerHTML = '<span style="color:var(--text-muted);font-size:12px;">Sin firmas aún…</span>';
+    return;
+  }
+  tempResponsables.forEach(r => {
+    const chip = document.createElement('div');
+    chip.className = 'resp-modal-chip';
+    chip.innerHTML = `${r.initials} — ${r.name} <button onclick="removeTempResponsable('${r.id}')">✕</button>`;
+    list.appendChild(chip);
+  });
+}
+
+// ═══════════════════════════════════════
+// SIGN FROM TABLE (existing record)
+// ═══════════════════════════════════════
+function openSignModal(recordId){
+  currentSignRecordId = recordId;
+  pinBuffer = '';
+  document.getElementById('sign-pin-display').textContent = '_ _ _ _';
+  document.getElementById('sign-pin-error').textContent = '';
+  document.getElementById('sign-employee').value = '';
+  openModal('modal-sign');
+}
+
+function pinKey(k){
+  if(k === 'del'){
+    pinBuffer = pinBuffer.slice(0,-1);
+  } else if(k === 'ok'){
+    confirmSign();
+    return;
+  } else {
+    if(pinBuffer.length < 4) pinBuffer += k;
+  }
+  updatePinDisplay();
+}
+
+function updatePinDisplay(){
+  const disp = document.getElementById('sign-pin-display');
+  let txt = '';
+  for(let i=0;i<4;i++){
+    txt += i < pinBuffer.length ? '●' : '_';
+    if(i<3) txt += ' ';
+  }
+  disp.textContent = txt;
+}
+
+function confirmSign(){
+  const empId = document.getElementById('sign-employee').value;
+  const errEl = document.getElementById('sign-pin-error');
+  if(!empId){ errEl.textContent = 'Seleccioná tu nombre.'; return; }
+  const emp = EMPLOYEES.find(e => e.id === empId);
+  if(!emp || emp.pin !== pinBuffer){ errEl.textContent = 'PIN incorrecto. Intentá nuevamente.'; pinBuffer=''; updatePinDisplay(); return; }
+
+  const rec = records.find(r => r.id === currentSignRecordId);
+  if(!rec){ closeModal('modal-sign'); return; }
+  if(rec.responsables.find(r => r.id === empId)){
+    errEl.textContent = 'Este empleado ya firmó este registro.';
+    return;
+  }
+
+  rec.responsables.push({id: emp.id, name: emp.name, initials: emp.initials, signedAt: new Date().toISOString()});
+  saveToLocalStorage();
+  closeModal('modal-sign');
+  renderTable();
+  showToast(`Firma de ${emp.name} registrada ✓`, 'success');
+}
+
+// ═══════════════════════════════════════
+// TABLE RENDER
+// ═══════════════════════════════════════
+function renderTable(){
+  const tbody = document.getElementById('records-tbody');
+  const ncLabels = {bano_hielo:'🧊 Baño de hielo', refrigerador:'❄️ Al refrigerador', descarte:'🗑 Descarte', otro:'📝 Otra acción'};
+
+  if(records.length === 0){
+    tbody.innerHTML = '<tr><td colspan="17"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No hay registros aún.</div></div></td></tr>';
+    updateStats();
+    return;
+  }
+
+  tbody.innerHTML = '';
+  records.forEach((r, idx) => {
+    const tr = document.createElement('tr');
+    if(r.status === 'nc') tr.className = 'row-nc';
+
+    const statusBadge = r.status === 'ok'
+      ? '<span class="badge badge-ok">✓ Conforme</span>'
+      : r.status === 'nc'
+      ? '<span class="badge badge-nc">✗ NC</span>'
+      : '<span class="badge badge-pending">⏳ Pendiente</span>';
+
+    const tpiBg = r.tprodInicio >= 15 ? 'temp-nc' : 'temp-ok';
+    const tpfBg = !isNaN(r.tprodFinal) && r.tprodFinal >= 15 ? 'temp-nc' : 'temp-ok';
+
+    const respHtml = r.responsables.map(resp =>
+      `<span class="resp-chip" title="${resp.name} – ${new Date(resp.signedAt).toLocaleString('es-SV')}">${resp.initials}</span>`
+    ).join('') + `<button class="btn-add-resp" onclick="openSignModal('${r.id}')">+ firma</button>`;
+
+    tr.innerHTML = `
+      <td style="color:var(--text-muted);font-weight:600;">${idx+1}</td>
+      <td>${r.fecha}</td>
+      <td>${r.cliente}</td>
+      <td style="max-width:140px;word-break:break-word;">${r.producto}</td>
+      <td><strong>${r.actividad}</strong></td>
+      <td>${r.horaInicio}</td>
+      <td><span class="temp-val ${tpiBg}">${r.tprodInicio}°C</span></td>
+      <td>${r.tambInicio}°C</td>
+      <td>${r.horaFinal || '—'}</td>
+      <td>${!isNaN(r.tprodFinal) ? `<span class="temp-val ${tpfBg}">${r.tprodFinal}°C</span>` : '—'}</td>
+      <td>${!isNaN(r.tambFinal) ? r.tambFinal+'°C' : '—'}</td>
+      <td>${r.cantidad || '—'}</td>
+      <td style="max-width:140px;word-break:break-word;font-size:11px;">${r.obs || '—'}</td>
+      <td><div class="resp-chips">${respHtml}</div></td>
+      <td>${statusBadge}</td>
+      <td style="font-size:11px;">${r.ncAction ? ncLabels[r.ncAction] || r.ncAction : '—'}</td>
+      <td>
+        <button class="btn-icon" onclick="openEditRecord('${r.id}')" title="Editar">✏️</button>
+        <button class="btn-icon danger" onclick="deleteRecord('${r.id}')" title="Eliminar">🗑</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  updateStats();
+  document.getElementById('table-timestamp').textContent = 'Actualizado: ' + new Date().toLocaleString('es-SV');
+}
+
+function updateStats(){
+  const ok = records.filter(r => r.status === 'ok').length;
+  const nc = records.filter(r => r.status === 'nc').length;
+  const totalResp = records.reduce((a,r) => a + r.responsables.length, 0);
+  document.getElementById('stat-total').textContent = records.length;
+  document.getElementById('stat-ok').textContent = ok;
+  document.getElementById('stat-nc').textContent = nc;
+  document.getElementById('stat-resp').textContent = totalResp;
+}
+
+// ═══════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════
+function exportCSV(){
+  if(records.length===0){ showToast('No hay registros para exportar','danger'); return; }
+  const area = document.getElementById('session-area').value || 'SinArea';
+  const fecha = document.getElementById('session-fecha').value;
+  const headers = ['#','Fecha','Cliente','Producto','Actividad','H.Inicio','T°Prod Inicio','T°Amb Inicio','H.Final','T°Prod Final','T°Amb Final','Cantidad','Observaciones/Lote','Responsables','Estado','Accion NC'];
+  const rows = records.map((r,i) => [
+    i+1, r.fecha, r.cliente, r.producto, r.actividad,
+    r.horaInicio, r.tprodInicio, r.tambInicio,
+    r.horaFinal||'', isNaN(r.tprodFinal)?'':r.tprodFinal, isNaN(r.tambFinal)?'':r.tambFinal,
+    r.cantidad, r.obs, r.responsables.map(x=>x.name).join(' | '),
+    r.status, r.ncAction||''
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `PCC5_${area}_${fecha}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportado ✓', 'success');
+}
+
+function exportJSON(){
+  const data = {
+    version: '1.0', app: 'PCC5-GCG',
+    area: document.getElementById('session-area').value,
+    fecha: document.getElementById('session-fecha').value,
+    station: document.getElementById('session-station').value,
+    exportadoEn: new Date().toISOString(),
+    exportadoPor: currentUser?.name,
+    records
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `PCC5_sesion_${data.fecha}.json`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Sesión guardada ✓', 'success');
+}
+
+function importJSON(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(!data.records) throw new Error();
+      records = data.records;
+      if(data.area) document.getElementById('session-area').value = data.area;
+      if(data.fecha) document.getElementById('session-fecha').value = data.fecha;
+      if(data.station) document.getElementById('session-station').value = data.station;
+      saveToLocalStorage();
+      renderTable();
+      showToast(`${records.length} registros cargados ✓`, 'success');
+    } catch(err){
+      showToast('Archivo inválido','danger');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function saveToLocalStorage(){
+  localStorage.setItem('pcc5_session', JSON.stringify({records}));
+}
+
+// ═══════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════
+function openModal(id){ document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+
+// Close on background click
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => {
+    if(e.target === bg) bg.classList.add('hidden');
+  });
+});
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+let toastTimer;
+function showToast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+</script>
+</body>
+</html>
